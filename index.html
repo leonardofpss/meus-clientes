@@ -3,106 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA CRM MOBILE</title>
+    <title>IMOBI CRM ELITE V3</title>
     <style>
         :root {
-            --bg: #0a0a0c; --card: #16161a; --primary: #7c4dff;
-            --secondary: #00e5ff; --text: #ffffff; --input: #23232e;
-            --danger: #ff5252; --whatsapp: #25d366;
+            --bg: #09090b; --card: #18181b; --primary: #a855f7;
+            --secondary: #22d3ee; --text: #f4f4f5; --input: #27272a;
+            --danger: #ef4444; --whatsapp: #22c55e; --warning: #f59e0b;
         }
 
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 10px; margin: 0; }
-        .container { max-width: 100%; margin: auto; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 12px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
         
-        /* Stats compactas para celular */
-        .stats-grid { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .stat-card { background: var(--card); padding: 10px; border-radius: 8px; border-left: 3px solid var(--primary); min-width: 100px; flex: 1; text-align: center; }
-        .stat-card h3 { margin: 0; font-size: 10px; color: #888; }
-        .stat-card p { margin: 2px 0 0; font-size: 18px; font-weight: bold; color: var(--secondary); }
+        /* Dashboard scroll */
+        .stats-wrapper { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
+        .stat-card { background: var(--card); padding: 10px; border-radius: 12px; min-width: 80px; flex: 1; text-align: center; border: 1px solid #27272a; }
+        .stat-card p { margin: 4px 0 0; font-size: 18px; font-weight: 800; color: var(--secondary); }
+        .stat-card h3 { margin: 0; font-size: 8px; color: #71717a; text-transform: uppercase; }
 
-        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .grid { display: flex; flex-direction: column; gap: 12px; }
-        
-        label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+        /* Form Estilizado */
+        .main-card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #27272a; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); }
+        label { display: block; font-size: 11px; color: #a1a1aa; margin: 10px 0 5px 2px; font-weight: 600; }
         input, select, textarea { 
-            width: 100%; padding: 14px; background: var(--input); border: 1px solid #333; 
-            color: white; border-radius: 8px; box-sizing: border-box; font-size: 16px; /* 16px evita zoom automático no iPhone */
+            width: 100%; padding: 12px; background: var(--input); border: 1px solid #3f3f46; 
+            color: white; border-radius: 10px; box-sizing: border-box; font-size: 16px;
         }
+        input:focus { border-color: var(--primary); outline: none; }
         
-        .btn-main { background: var(--primary); color: white; padding: 16px; width: 100%; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        
-        .search-area { margin-bottom: 15px; }
-        #busca { border: 1px solid var(--primary); padding: 12px; }
+        .btn-save { background: var(--primary); color: white; padding: 16px; width: 100%; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(168, 85, 247, 0.4); }
 
-        /* Tabela Responsiva */
-        .table-container { background: var(--card); border-radius: 12px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
-        th { background: #222; color: var(--secondary); padding: 12px; font-size: 11px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #222; font-size: 13px; }
+        /* Filtros e Busca */
+        .search-bar { width: 100%; padding: 12px; background: #000; border: 1px solid #27272a; border-radius: 12px; color: white; margin-bottom: 15px; box-sizing: border-box; }
 
-        .actions { display: flex; gap: 10px; }
-        .btn-round { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .bg-zap { background: var(--whatsapp); color: white; }
-        .bg-del { background: var(--danger); color: white; }
+        /* Lista de Leads */
+        .client-card { background: var(--card); padding: 16px; border-radius: 16px; margin-bottom: 12px; border-left: 5px solid #3f3f46; position: relative; }
+        .status-aguardando { border-left-color: var(--warning); }
+        .status-visita { border-left-color: var(--secondary); }
+        .status-fechado { border-left-color: var(--whatsapp); }
+
+        .client-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .client-name { font-size: 16px; font-weight: 700; margin: 0; }
+        .badge { font-size: 9px; padding: 2px 8px; border-radius: 4px; font-weight: bold; background: #27272a; color: #a1a1aa; }
+
+        .obs-box { font-size: 13px; color: #d1d1d6; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 10px 0; border: 1px solid #27272a; }
+
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; }
+        .action-btn { padding: 10px 0; border-radius: 8px; border: none; color: white; font-size: 10px; font-weight: bold; text-align: center; cursor: pointer; }
+        .bg-zap { background: var(--whatsapp); }
+        .bg-call { background: #3b82f6; }
+        .bg-edit { background: #52525b; }
+        .bg-del { background: var(--danger); opacity: 0.8; }
+
+        .footer-tools { text-align: center; padding: 20px; opacity: 0.5; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="stats-grid">
+    <div class="stats-wrapper">
         <div class="stat-card"><h3>Total</h3><p id="st-total">0</p></div>
         <div class="stat-card"><h3>Casas</h3><p id="st-casas">0</p></div>
         <div class="stat-card"><h3>Aptos</h3><p id="st-aptos">0</p></div>
+        <div class="stat-card"><h3>Granjas</h3><p id="st-granjas">0</p></div>
+        <div class="stat-card"><h3>Terr.</h3><p id="st-terrenos">0</p></div>
     </div>
 
-    <div class="card">
+    <div class="main-card">
+        <h2 id="title" style="margin:0; font-size:18px">✨ Novo Lead</h2>
         <form id="crmForm">
-            <div class="grid">
-                <div>
-                    <label>Nome do Cliente</label>
-                    <input type="text" id="nome" required placeholder="Ex: Maria Silva">
+            <input type="hidden" id="editId">
+            <label>NOME DO CLIENTE</label>
+            <input type="text" id="nome" placeholder="Nome completo" required>
+            
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>WHATSAPP</label>
+                    <input type="tel" id="tel" placeholder="DDD + Número" required>
                 </div>
-                <div style="display: flex; gap: 5px;">
-                    <div style="width: 30%;">
-                        <label>DDD</label>
-                        <input type="number" id="ddd" value="11">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Telefone</label>
-                        <input type="tel" id="tel" placeholder="99999-9999">
-                    </div>
-                </div>
-                <div>
-                    <label>Imóvel</label>
-                    <select id="tipo">
-                        <option value="Casa">Casa</option>
-                        <option value="Apartamento">Apartamento</option>
+                <div style="flex: 1;">
+                    <label>STATUS</label>
+                    <select id="status">
+                        <option value="aguardando">🟡 Aguardando</option>
+                        <option value="visita">🔵 Visita Marcada</option>
+                        <option value="fechado">🟢 Venda Fechada</option>
                     </select>
                 </div>
-                <div>
-                    <label>Observações</label>
-                    <textarea id="obs" rows="2"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>TIPO IMÓVEL</label>
+                    <select id="tipo">
+                        <option value="Casa">Casa</option>
+                        <option value="Apartamento">Apto</option>
+                        <option value="Granja">Granja</option>
+                        <option value="Terreno">Terreno</option>
+                    </select>
                 </div>
             </div>
-            <button type="submit" class="btn-main">SALVAR CLIENTE</button>
+
+            <label>OBSERVAÇÕES</label>
+            <textarea id="obs" rows="2" placeholder="Local, valor, perfil..."></textarea>
+            
+            <button type="submit" class="btn-save" id="btnS">SALVAR CLIENTE</button>
+            <button type="button" id="btnC" style="display:none; color:white; background:none; border:none; width:100%; margin-top:10px" onclick="cancelar()">Cancelar</button>
         </form>
     </div>
 
-    <div class="search-area">
-        <input type="text" id="busca" placeholder="🔍 Buscar cliente..." onkeyup="render()">
-    </div>
+    <input type="text" id="busca" class="search-bar" placeholder="🔍 Pesquisar por nome..." onkeyup="render()">
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>CLIENTE</th>
-                    <th>TIPO</th>
-                    <th>AÇÕES</th>
-                </tr>
-            </thead>
-            <tbody id="lista"></tbody>
-        </table>
+    <div id="lista"></div>
+
+    <div class="footer-tools">
+        CRM Imobiliário v3.0 | <span onclick="exportar()">Baixar Backup</span>
     </div>
 </div>
 
@@ -111,58 +123,99 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const cliente = {
-            id: Date.now(),
+        const id = document.getElementById('editId').value;
+        const novo = {
+            id: id ? parseInt(id) : Date.now(),
             nome: document.getElementById('nome').value,
-            tel: `(${document.getElementById('ddd').value}) ${document.getElementById('tel').value}`,
+            tel: document.getElementById('tel').value.replace(/\D/g, ""),
+            status: document.getElementById('status').value,
             tipo: document.getElementById('tipo').value,
             obs: document.getElementById('obs').value,
             data: new Date().toLocaleDateString('pt-BR')
         };
-        const lista = JSON.parse(localStorage.getItem('db_mobile') || '[]');
-        lista.push(cliente);
-        localStorage.setItem('db_mobile', JSON.stringify(lista));
+
+        let db = JSON.parse(localStorage.getItem('imobi_v3') || '[]');
+        if(id) { db = db.map(c => c.id == id ? novo : c); cancelar(); } 
+        else { db.push(novo); }
+        
+        localStorage.setItem('imobi_v3', JSON.stringify(db));
         form.reset();
         render();
     });
 
     function render() {
-        const lista = JSON.parse(localStorage.getItem('db_mobile') || '[]');
+        const db = JSON.parse(localStorage.getItem('imobi_v3') || '[]');
         const termo = document.getElementById('busca').value.toLowerCase();
         
-        document.getElementById('st-total').innerText = lista.length;
-        document.getElementById('st-casas').innerText = lista.filter(c => c.tipo === 'Casa').length;
-        document.getElementById('st-aptos').innerText = lista.filter(c => c.tipo === 'Apartamento').length;
+        document.getElementById('st-total').innerText = db.length;
+        document.getElementById('st-casas').innerText = db.filter(c => c.tipo === 'Casa').length;
+        document.getElementById('st-aptos').innerText = db.filter(c => c.tipo === 'Apartamento').length;
+        document.getElementById('st-granjas').innerText = db.filter(c => c.tipo === 'Granja').length;
+        document.getElementById('st-terrenos').innerText = db.filter(c => c.tipo === 'Terreno').length;
 
-        document.getElementById('lista').innerHTML = lista.slice().reverse()
-            .filter(c => c.nome.toLowerCase().includes(termo))
-            .map(c => `
-                <tr>
-                    <td>
-                        <strong>${c.nome}</strong><br>
-                        <small style="color:var(--secondary)">${c.tel}</small>
-                    </td>
-                    <td>${c.tipo}</td>
-                    <td class="actions">
-                        <button onclick="zap('${c.tel}', '${c.nome}')" class="btn-round bg-zap">W</button>
-                        <button onclick="del(${c.id})" class="btn-round bg-del">X</button>
-                    </td>
-                </tr>
-            `).join('');
+        const listaDiv = document.getElementById('lista');
+        listaDiv.innerHTML = db.slice().reverse().filter(c => c.nome.toLowerCase().includes(termo)).map(c => `
+            <div class="client-card status-${c.status}">
+                <div class="client-header">
+                    <div>
+                        <p class="client-name">${c.nome}</p>
+                        <span class="badge">${c.tipo.toUpperCase()}</span>
+                    </div>
+                    <span style="font-size:10px; color:#52525b">${c.data}</span>
+                </div>
+                <div class="obs-box">${c.obs || 'Nenhuma observação.'}</div>
+                <div class="actions-grid">
+                    <button class="action-btn bg-zap" onclick="zap('${c.tel}', '${c.nome}')">ZAP</button>
+                    <button class="action-btn bg-call" onclick="window.location.href='tel:${c.tel}'">LIGAR</button>
+                    <button class="action-btn bg-edit" onclick="editar(${c.id})">EDIT</button>
+                    <button class="action-btn bg-del" onclick="apagar(${c.id})">SAIR</button>
+                </div>
+            </div>
+        `).join('');
     }
 
     function zap(tel, nome) {
-        const num = tel.replace(/\D/g, "");
-        window.open(`https://api.whatsapp.com/send?phone=55${num}&text=Olá ${nome}, tudo bem?`, '_blank');
+        window.open(`https://api.whatsapp.com/send?phone=55${tel}&text=Olá ${nome}, tudo bem?`, '_blank');
     }
 
-    function del(id) {
-        if(confirm("Excluir?")) {
-            let lista = JSON.parse(localStorage.getItem('db_mobile'));
-            lista = lista.filter(c => c.id != id);
-            localStorage.setItem('db_mobile', JSON.stringify(lista));
+    function editar(id) {
+        const db = JSON.parse(localStorage.getItem('imobi_v3'));
+        const c = db.find(i => i.id == id);
+        document.getElementById('editId').value = c.id;
+        document.getElementById('nome').value = c.nome;
+        document.getElementById('tel').value = c.tel;
+        document.getElementById('status').value = c.status;
+        document.getElementById('tipo').value = c.tipo;
+        document.getElementById('obs').value = c.obs;
+        document.getElementById('title').innerText = "📝 Editando";
+        document.getElementById('btnS').innerText = "ATUALIZAR";
+        document.getElementById('btnC').style.display = "block";
+        window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function cancelar() {
+        document.getElementById('editId').value = "";
+        document.getElementById('title').innerText = "✨ Novo Lead";
+        document.getElementById('btnS').innerText = "SALVAR CLIENTE";
+        document.getElementById('btnC').style.display = "none";
+        form.reset();
+    }
+
+    function apagar(id) {
+        if(confirm("Remover cliente?")) {
+            let db = JSON.parse(localStorage.getItem('imobi_v3'));
+            localStorage.setItem('imobi_v3', JSON.stringify(db.filter(i => i.id != id)));
             render();
         }
+    }
+
+    function exportar() {
+        const data = localStorage.getItem('imobi_v3');
+        const blob = new Blob([data], {type: 'text/plain'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'backup_imobi.txt';
+        a.click();
     }
 
     render();
