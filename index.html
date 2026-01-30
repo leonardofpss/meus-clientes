@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SISTEMA CRM MOBILE</title>
+    <style>
+        :root {
+            --bg: #0a0a0c; --card: #16161a; --primary: #7c4dff;
+            --secondary: #00e5ff; --text: #ffffff; --input: #23232e;
+            --danger: #ff5252; --whatsapp: #25d366;
+        }
+
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 10px; margin: 0; }
+        .container { max-width: 100%; margin: auto; }
+        
+        /* Stats compactas para celular */
+        .stats-grid { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .stat-card { background: var(--card); padding: 10px; border-radius: 8px; border-left: 3px solid var(--primary); min-width: 100px; flex: 1; text-align: center; }
+        .stat-card h3 { margin: 0; font-size: 10px; color: #888; }
+        .stat-card p { margin: 2px 0 0; font-size: 18px; font-weight: bold; color: var(--secondary); }
+
+        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .grid { display: flex; flex-direction: column; gap: 12px; }
+        
+        label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+        input, select, textarea { 
+            width: 100%; padding: 14px; background: var(--input); border: 1px solid #333; 
+            color: white; border-radius: 8px; box-sizing: border-box; font-size: 16px; /* 16px evita zoom automático no iPhone */
+        }
+        
+        .btn-main { background: var(--primary); color: white; padding: 16px; width: 100%; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        
+        .search-area { margin-bottom: 15px; }
+        #busca { border: 1px solid var(--primary); padding: 12px; }
+
+        /* Tabela Responsiva */
+        .table-container { background: var(--card); border-radius: 12px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th { background: #222; color: var(--secondary); padding: 12px; font-size: 11px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #222; font-size: 13px; }
+
+        .actions { display: flex; gap: 10px; }
+        .btn-round { width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .bg-zap { background: var(--whatsapp); color: white; }
+        .bg-del { background: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="stats-grid">
+        <div class="stat-card"><h3>Total</h3><p id="st-total">0</p></div>
+        <div class="stat-card"><h3>Casas</h3><p id="st-casas">0</p></div>
+        <div class="stat-card"><h3>Aptos</h3><p id="st-aptos">0</p></div>
+    </div>
+
+    <div class="card">
+        <form id="crmForm">
+            <div class="grid">
+                <div>
+                    <label>Nome do Cliente</label>
+                    <input type="text" id="nome" required placeholder="Ex: Maria Silva">
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <div style="width: 30%;">
+                        <label>DDD</label>
+                        <input type="number" id="ddd" value="11">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Telefone</label>
+                        <input type="tel" id="tel" placeholder="99999-9999">
+                    </div>
+                </div>
+                <div>
+                    <label>Imóvel</label>
+                    <select id="tipo">
+                        <option value="Casa">Casa</option>
+                        <option value="Apartamento">Apartamento</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Observações</label>
+                    <textarea id="obs" rows="2"></textarea>
+                </div>
+            </div>
+            <button type="submit" class="btn-main">SALVAR CLIENTE</button>
+        </form>
+    </div>
+
+    <div class="search-area">
+        <input type="text" id="busca" placeholder="🔍 Buscar cliente..." onkeyup="render()">
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>CLIENTE</th>
+                    <th>TIPO</th>
+                    <th>AÇÕES</th>
+                </tr>
+            </thead>
+            <tbody id="lista"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('crmForm');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cliente = {
+            id: Date.now(),
+            nome: document.getElementById('nome').value,
+            tel: `(${document.getElementById('ddd').value}) ${document.getElementById('tel').value}`,
+            tipo: document.getElementById('tipo').value,
+            obs: document.getElementById('obs').value,
+            data: new Date().toLocaleDateString('pt-BR')
+        };
+        const lista = JSON.parse(localStorage.getItem('db_mobile') || '[]');
+        lista.push(cliente);
+        localStorage.setItem('db_mobile', JSON.stringify(lista));
+        form.reset();
+        render();
+    });
+
+    function render() {
+        const lista = JSON.parse(localStorage.getItem('db_mobile') || '[]');
+        const termo = document.getElementById('busca').value.toLowerCase();
+        
+        document.getElementById('st-total').innerText = lista.length;
+        document.getElementById('st-casas').innerText = lista.filter(c => c.tipo === 'Casa').length;
+        document.getElementById('st-aptos').innerText = lista.filter(c => c.tipo === 'Apartamento').length;
+
+        document.getElementById('lista').innerHTML = lista.slice().reverse()
+            .filter(c => c.nome.toLowerCase().includes(termo))
+            .map(c => `
+                <tr>
+                    <td>
+                        <strong>${c.nome}</strong><br>
+                        <small style="color:var(--secondary)">${c.tel}</small>
+                    </td>
+                    <td>${c.tipo}</td>
+                    <td class="actions">
+                        <button onclick="zap('${c.tel}', '${c.nome}')" class="btn-round bg-zap">W</button>
+                        <button onclick="del(${c.id})" class="btn-round bg-del">X</button>
+                    </td>
+                </tr>
+            `).join('');
+    }
+
+    function zap(tel, nome) {
+        const num = tel.replace(/\D/g, "");
+        window.open(`https://api.whatsapp.com/send?phone=55${num}&text=Olá ${nome}, tudo bem?`, '_blank');
+    }
+
+    function del(id) {
+        if(confirm("Excluir?")) {
+            let lista = JSON.parse(localStorage.getItem('db_mobile'));
+            lista = lista.filter(c => c.id != id);
+            localStorage.setItem('db_mobile', JSON.stringify(lista));
+            render();
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
