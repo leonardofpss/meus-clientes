@@ -3,82 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA IMOBILIÁRIO NUVEM</title>
+    <title>SISTEMA IMOBILIÁRIO PRIVADO</title>
     <style>
-        :root { --bg: #09090b; --card: #18181b; --primary: #a855f7; --text: #f4f4f5; --input: #27272a; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #333; }
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; background: var(--input); border: 1px solid #444; color: white; border-radius: 10px; box-sizing: border-box; }
-        .btn-save { background: var(--primary); color: white; padding: 16px; width: 100%; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; }
-        .status-msg { margin-top: 10px; font-size: 12px; text-align: center; color: #22d3ee; }
-        .btn-view { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; font-size: 14px; border: 1px solid #333; padding: 10px; border-radius: 10px; }
+        :root {
+            --bg: #09090b; --card: #18181b; --primary: #a855f7;
+            --secondary: #22d3ee; --text: #f4f4f5; --input: #27272a;
+            --danger: #ef4444; --whatsapp: #22c55e;
+        }
+
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 12px; margin: 0; }
+        .container { max-width: 500px; margin: auto; }
+        
+        /* Tela de Login */
+        #login-screen { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 80vh; text-align: center; 
+        }
+        
+        /* Conteúdo Principal (Escondido por padrão) */
+        #main-content { display: none; }
+
+        .card { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #27272a; margin-bottom: 20px; }
+        
+        input, select, textarea { 
+            width: 100%; padding: 14px; background: var(--input); border: 1px solid #3f3f46; 
+            color: white; border-radius: 12px; box-sizing: border-box; font-size: 16px; margin-bottom: 12px;
+        }
+
+        .btn { 
+            width: 100%; padding: 16px; border: none; border-radius: 12px; 
+            font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-zap { background: var(--whatsapp); color: white; margin-top: 10px; }
+
+        .client-card { 
+            background: var(--card); padding: 15px; border-radius: 15px; 
+            margin-bottom: 12px; border-left: 4px solid var(--primary);
+        }
+        
+        .badge { font-size: 10px; background: #333; padding: 3px 8px; border-radius: 5px; color: var(--secondary); }
+        .error { color: var(--danger); font-size: 14px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container" style="max-width: 500px; margin: auto;">
-    <div class="card">
-        <h2 style="margin:0 0 15px 0; color:var(--primary)">☁️ Cadastro em Nuvem</h2>
-        <form id="formNuvem">
-            <input type="text" id="nome" placeholder="Nome Completo" required>
-            <input type="tel" id="tel" placeholder="Telefone (WhatsApp)" required>
-            <select id="tipo">
-                <option value="Casa">Casa</option>
-                <option value="Apartamento">Apartamento</option>
-                <option value="Granja">Granja</option>
-                <option value="Terreno">Terreno</option>
-            </select>
-            <textarea id="obs" placeholder="Observações..."></textarea>
-            <button type="submit" class="btn-save" id="btnEnviar">SALVAR CLIENTE</button>
-            <div id="status" class="status-msg"></div>
-        </form>
+<div class="container">
+    <div id="login-screen">
+        <h1 style="color: var(--primary)">🔐 Acesso Restrito</h1>
+        <p style="color: #888">Digite a senha para ver os clientes</p>
+        <input type="password" id="senha-input" placeholder="Senha do Sistema">
+        <button class="btn btn-primary" onclick="verificarSenha()">ENTRAR</button>
+        <div id="login-erro" class="error"></div>
     </div>
 
-    <a href="COLOQUE_AQUI_O_LINK_DA_SUA_PLANILHA" target="_blank" class="btn-view">📂 Ver Lista Completa (Google Sheets)</a>
+    <div id="main-content">
+        <div class="card">
+            <h2 style="margin: 0 0 20px 0">🏠 Novo Registro</h2>
+            <form id="crmForm">
+                <input type="text" id="nome" placeholder="Nome do Cliente" required>
+                <input type="tel" id="tel" placeholder="WhatsApp (ex: 11999998888)" required>
+                <select id="tipo">
+                    <option value="Casa">Casa</option>
+                    <option value="Apartamento">Apartamento</option>
+                    <option value="Granja">Granja</option>
+                    <option value="Terreno">Terreno</option>
+                </select>
+                <textarea id="obs" placeholder="Observações do interesse..."></textarea>
+                <button type="submit" class="btn btn-primary">SALVAR CLIENTE</button>
+            </form>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <input type="text" id="busca" placeholder="🔍 Buscar na sua lista..." onkeyup="renderizar()">
+        </div>
+
+        <div id="lista-clientes"></div>
+        
+        <button class="btn" style="background: #222; margin-top: 20px;" onclick="logout()">SAIR / BLOQUEAR</button>
+    </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "SUA_URL_DO_GOOGLE_AQUI"; // Cole aqui o link do Passo 1
+    const SENHA_MESTRA = "1234"; // <--- MUDE SUA SENHA AQUI
 
-    document.getElementById('formNuvem').addEventListener('submit', function(e) {
+    // --- SISTEMA DE LOGIN ---
+    function verificarSenha() {
+        const input = document.getElementById('senha-input').value;
+        if(input === SENHA_MESTRA) {
+            sessionStorage.setItem('logado', 'true');
+            mostrarApp();
+        } else {
+            document.getElementById('login-erro').innerText = "Senha incorreta!";
+        }
+    }
+
+    function mostrarApp() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        renderizar();
+    }
+
+    function logout() {
+        sessionStorage.removeItem('logado');
+        window.location.reload();
+    }
+
+    // Verifica se já estava logado antes
+    if(sessionStorage.getItem('logado') === 'true') {
+        mostrarApp();
+    }
+
+    // --- SISTEMA DE DADOS ---
+    const form = document.getElementById('crmForm');
+
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const btn = document.getElementById('btnEnviar');
-        const status = document.getElementById('status');
         
-        btn.disabled = true;
-        btn.innerText = "Enviando para a nuvem...";
-        status.innerText = "";
+        const nome = document.getElementById('nome').value.trim();
+        const tel = document.getElementById('tel').value.replace(/\D/g, "");
+        
+        let db = JSON.parse(localStorage.getItem('imobi_logs_v4') || '[]');
 
-        const dados = {
-            data: new Date().toLocaleDateString('pt-BR'),
-            nome: document.getElementById('nome').value,
-            tel: document.getElementById('tel').value.replace(/\D/g, ""),
+        // VERIFICAÇÃO ANTI-REPETIÇÃO
+        const existe = db.find(c => c.tel === tel || c.nome.toLowerCase() === nome.toLowerCase());
+        if(existe) {
+            alert("Atenção: Este cliente (ou telefone) já está cadastrado!");
+            return;
+        }
+
+        const novoCliente = {
+            id: Date.now(),
+            nome: nome,
+            tel: tel,
             tipo: document.getElementById('tipo').value,
-            obs: document.getElementById('obs').value
+            obs: document.getElementById('obs').value,
+            data: new Date().toLocaleDateString('pt-BR')
         };
 
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(dados)
-        })
-        .then(res => res.text())
-        .then(res => {
-            if(res === "Sucesso") {
-                status.innerText = "✅ Salvo na Planilha com sucesso!";
-                document.getElementById('formNuvem').reset();
-            } else {
-                status.innerText = "⚠️ " + res; // Exibe "Cliente já cadastrado"
-            }
-        })
-        .catch(err => {
-            status.innerText = "❌ Erro ao conectar com a nuvem.";
-            console.error(err);
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerText = "SALVAR CLIENTE";
-        });
+        db.push(novoCliente);
+        localStorage.setItem('imobi_logs_v4', JSON.stringify(db));
+        form.reset();
+        renderizar();
     });
+
+    function renderizar() {
+        const db = JSON.parse(localStorage.getItem('imobi_logs_v4') || '[]');
+        const termo = document.getElementById('busca').value.toLowerCase();
+        const container = document.getElementById('lista-clientes');
+        
+        container.innerHTML = '';
+
+        const filtrados = db.slice().reverse().filter(c => 
+            c.nome.toLowerCase().includes(termo) || c.tipo.toLowerCase().includes(termo)
+        );
+
+        filtrados.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'client-card';
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between">
+                    <strong>${c.nome}</strong>
+                    <span class="badge">${c.tipo}</span>
+                </div>
+                <p style="font-size: 13px; color: #aaa; margin: 8px 0;">${c.obs}</p>
+                <div style="font-size: 11px; color: #555;">Cadastrado em: ${c.data}</div>
+                <button class="btn btn-zap" onclick="abrirZap('${c.tel}')">WHATSAPP</button>
+                <button onclick="remover(${c.id})" style="background:none; border:none; color:var(--danger); font-size:11px; margin-top:10px; width:100%">Excluir Registro</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function abrirZap(tel) {
+        window.open(`https://api.whatsapp.com/send?phone=55${tel}`, '_blank');
+    }
+
+    function remover(id) {
+        if(confirm("Apagar permanentemente este cliente?")) {
+            let db = JSON.parse(localStorage.getItem('imobi_logs_v4'));
+            db = db.filter(c => c.id !== id);
+            localStorage.setItem('imobi_logs_v4', JSON.stringify(db));
+            renderizar();
+        }
+    }
 </script>
 
 </body>
